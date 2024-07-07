@@ -12,6 +12,11 @@ import (
 )
 
 var (
+	EvmChainID_Testnet int64 = 9000
+	EvmChainID_Mainnet int64 = 9001
+)
+
+var (
 	regexChainID         = `[a-z]{1,}`
 	regexEIP155Separator = `_{1}`
 	regexEIP155          = `[1-9][0-9]*`
@@ -54,4 +59,26 @@ func ParseChainID(chainID string) (*big.Int, error) {
 	}
 
 	return chainIDInt, nil
+}
+
+func CheckEvmChainID(chainID *big.Int) {
+	if !(chainID.Cmp(big.NewInt(EvmChainID_Testnet)) == 0 || chainID.Cmp(big.NewInt(EvmChainID_Mainnet)) == 0) {
+		panic(fmt.Sprintf("EVM only supports chain identifiers (%v or %v)", EvmChainID_Testnet, EvmChainID_Mainnet))
+	}
+}
+
+func SetEvmChainIDs(testnet, mainnet int64) {
+	EvmChainID_Testnet = testnet
+	EvmChainID_Mainnet = mainnet
+}
+
+func IsMainnet(chainID string) bool {
+	cid, err := ParseChainID(chainID)
+	if err != nil {
+		panic(err.Error())
+	}
+	if cid.Int64() == EvmChainID_Mainnet {
+		return true
+	}
+	return false
 }
